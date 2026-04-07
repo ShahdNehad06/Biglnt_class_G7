@@ -8,40 +8,69 @@ class BigInt {
 
     // Remove unnecessary leading zeros from the number string
     void removeLeadingZeros() {
-        // TODO: Implement this function
+         size_t pos = number.find_first_not_of('0');
+    if (pos == string::npos) {
+        number = "0";
+        isNegative = false;
+    } else {
+        number = number.substr(pos);
+    }
     }
 
     // Compare absolute values of two BigInts (ignore signs)
     // Returns: 1 if |this| > |other|, 0 if equal, -1 if |this| < |other|
     int compareMagnitude(const BigInt& other) const {
-        // TODO: Implement this function
-        return 0;
+         if (number.size() > other.number.size()) return 1;
+    if (number.size() < other.number.size()) return -1;
+    if (number == other.number) return 0;
+    return (number > other.number) ? 1 : -1;
+
     }
 
 public:
     // Default constructor - initialize to zero
-    BigInt() {
-        // TODO: Implement this constructor
-    }
+   BigInt() {
+    number = "0";
+    isNegative = false;
+}
 
     // Constructor from 64-bit integer
-    BigInt(int64_t value) {
-        // TODO: Implement this constructor
+  BigInt(int64_t value) {
+    if (value < 0) {
+        isNegative = true;
+        value = -value;
+    } else {
+        isNegative = false;
     }
+    number = to_string(value);
+}
 
     // Constructor from string representation
-    BigInt(const string& str) {
-        // TODO: Implement this constructor
+BigInt(const string& str) {
+    if (str.empty()) {
+        number = "0";
+        isNegative = false;
+        return;
     }
-
+    if (str[0] == '-') {
+        isNegative = true;
+        number = str.substr(1);
+    } else {
+        isNegative = false;
+        number = str;
+    }
+    removeLeadingZeros();
+}
     // Copy constructor
-    BigInt(const BigInt& other) {
-        // TODO: Implement this constructor
-    }
+  BigInt(const BigInt& other) {
+    number = other.number;
+    isNegative = other.isNegative;
+}
 
     // Destructor
-    ~BigInt() {
-        // TODO: Implement if needed
+   ~BigInt() {
+    // Nothing to clean up
+}
     }
 
     // Assignment operator
@@ -221,7 +250,7 @@ int main() {
     cout << "The tests below will work once you implement them correctly." << endl << endl;
 
     /*
-    Test 1: Constructors and basic output
+    // Test 1: Constructors and basic output
     cout << "1. Constructors and output:" << endl;
     BigInt a(12345);              // Should create BigInt from integer
     BigInt b("-67890");           // Should create BigInt from string
@@ -232,7 +261,7 @@ int main() {
     cout << "c (zero): " << c << endl;            // Should print "0"
     cout << "d (copy of a): " << d << endl << endl; // Should print "12345"
 
-    Test 2: Arithmetic operations
+    // Test 2: Arithmetic operations
     cout << "2. Arithmetic operations:" << endl;
     cout << "a + b = " << a + b << endl;          // Should calculate 12345 + (-67890)
     cout << "a - b = " << a - b << endl;          // Should calculate 12345 - (-67890)
@@ -240,7 +269,7 @@ int main() {
     cout << "b / a = " << b / a << endl;          // Should calculate (-67890) / 12345
     cout << "a % 100 = " << a % BigInt(100) << endl << endl; // Should calculate 12345 % 100
 
-    Test 3: Relational operators
+    // Test 3: Relational operators
     cout << "3. Relational operators:" << endl;
     cout << "a == d: " << (a == d) << endl;       // Should be true (12345 == 12345)
     cout << "a != b: " << (a != b) << endl;       // Should be true (12345 != -67890)
@@ -248,21 +277,21 @@ int main() {
     cout << "a > b: " << (a > b) << endl;         // Should be true (12345 > -67890)
     cout << "c == 0: " << (c == BigInt(0)) << endl << endl; // Should be true (0 == 0)
 
-    Test 4: Unary operators and increments
+    // Test 4: Unary operators and increments
     cout << "4. Unary operators and increments:" << endl;
     cout << "-a: " << -a << endl;                 // Should print "-12345"
     cout << "++a: " << ++a << endl;               // Should increment and print "12346"
     cout << "a--: " << a-- << endl;               // Should print "12346" then decrement
     cout << "a after decrement: " << a << endl << endl; // Should print "12345"
 
-    Test 5: Large number operations
+    // Test 5: Large number operations
     cout << "5. Large number operations:" << endl;
     BigInt num1("12345678901234567890");
     BigInt num2("98765432109876543210");
     cout << "Very large addition: " << num1 + num2 << endl;
     cout << "Very large multiplication: " << num1 * num2 << endl << endl;
 
-    Test 6: Edge cases and error handling
+    // Test 6: Edge cases and error handling
     cout << "6. Edge cases:" << endl;
     BigInt zero(0);
     BigInt one(1);
