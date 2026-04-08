@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <cstdint>
 using namespace std;
 
 class BigInt {
@@ -8,7 +9,7 @@ class BigInt {
 
     // Remove unnecessary leading zeros from the number string
     void removeLeadingZeros() {
-         size_t pos = number.find_first_not_of('0');
+    size_t pos = number.find_first_not_of('0');
     if (pos == string::npos) {
         number = "0";
         isNegative = false;
@@ -20,7 +21,7 @@ class BigInt {
     // Compare absolute values of two BigInts (ignore signs)
     // Returns: 1 if |this| > |other|, 0 if equal, -1 if |this| < |other|
     int compareMagnitude(const BigInt& other) const {
-         if (number.size() > other.number.size()) return 1;
+    if (number.size() > other.number.size()) return 1;
     if (number.size() < other.number.size()) return -1;
     if (number == other.number) return 0;
     return (number > other.number) ? 1 : -1;
@@ -29,13 +30,13 @@ class BigInt {
 
 public:
     // Default constructor - initialize to zero
-   BigInt() {
+    BigInt() {
     number = "0";
     isNegative = false;
 }
 
     // Constructor from 64-bit integer
-  BigInt(int64_t value) {
+    BigInt(int64_t value) {
     if (value < 0) {
         isNegative = true;
         value = -value;
@@ -71,55 +72,56 @@ BigInt(const string& str) {
    ~BigInt() {
     // Nothing to clean up
 }
-    }
 
     // Assignment operator
     BigInt& operator=(const BigInt& other) {
-        // TODO: Implement this operator
+        if(this !=  &other){
+            number = other.number;
+        }
         return *this;
     }
 
     // Unary negation operator (-x)
     BigInt operator-() const {
-        BigInt result;
-        // TODO: Implement negation logic
+        BigInt result = *this;
+        if(result.number != "0")
+            result.isNegative = !isNegative;
+        
         return result;
     }
 
     // Unary plus operator (+x)
     BigInt operator+() const {
-        BigInt result;
-        // TODO: Implement this operator
-        return result;
+        return *this;
     }
 
     // Addition assignment operator (x += y)
     BigInt& operator+=(const BigInt& other) {
-        // TODO: Implement this operator
+        *this = *this + other;
         return *this;
     }
 
     // Subtraction assignment operator (x -= y)
     BigInt& operator-=(const BigInt& other) {
-        // TODO: Implement this operator
+        *this = *this - other;
         return *this;
     }
 
     // Multiplication assignment operator (x *= y)
     BigInt& operator*=(const BigInt& other) {
-        // TODO: Implement this operator
+        *this = *this * other;
         return *this;
     }
 
     // Division assignment operator (x /= y)
     BigInt& operator/=(const BigInt& other) {
-        // TODO: Implement this operator
+        *this = *this / other;
         return *this;
     }
 
     // Modulus assignment operator (x %= y)
     BigInt& operator%=(const BigInt& other) {
-        // TODO: Implement this operator
+        *this = *this % other;
         return *this;
     }
 
