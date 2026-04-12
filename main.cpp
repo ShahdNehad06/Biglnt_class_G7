@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <cstdint>
@@ -46,7 +47,7 @@ public:
     number = to_string(value);
 }
 
-    // Constructor from string representation
+    // Constructor from string representation.
 BigInt(const string& str) {
     if (str.empty()) {
         number = "0";
@@ -128,44 +129,57 @@ BigInt(const string& str) {
     // Pre-increment operator (++x)
     BigInt& operator++() {
         // TODO: Implement this operator
+       *this+=BigInt(1);//we do new object of class bigint using constructor and store it this
         return *this;
     }
 
     // Post-increment operator (x++)
     BigInt operator++(int) {
-        BigInt temp;
-        // TODO: Implement this operator
+        BigInt temp = *this;//let temp = the current value and it will print the current value
+        ++*this;//this line store in the value of this the incremented value
         return temp;
     }
 
     // Pre-decrement operator (--x)
     BigInt& operator--() {
         // TODO: Implement this operator
+       *this-=BigInt(1);
         return *this;
     }
 
     // Post-decrement operator (x--)
     BigInt operator--(int) {
-        BigInt temp;
-        // TODO: Implement this operator
+        BigInt temp =*this;
+        --*this;
         return temp;
     }
 
     // Convert BigInt to string representation
     string toString() const {
-        // TODO: Implement this function
-        return "";
+        if (isNegative) {
+            return "-" + number;
+        }
+       else {
+           return "" + number;
+       }
     }
 
     // Output stream operator (for printing)
     friend ostream& operator<<(ostream& os, const BigInt& num) {
         // TODO: Implement this operator
+       if (num.isNegative && num.number!="0") {
+           os<<"- ";
+       }
+       os << num.number;
         return os;
     }
 
     // Input stream operator (for reading from input)
     friend istream& operator>>(istream& is, BigInt& num) {
         // TODO: Implement this operator
+        string x;
+        is >> x;
+        num=BigInt(x);
         return is;
     }
 
