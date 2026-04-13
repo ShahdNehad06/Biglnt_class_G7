@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <cstdint>
+#include <algorithm>
 using namespace std;
 
 class BigInt {
@@ -96,35 +97,160 @@ BigInt(const string& str) {
         return *this;
     }
 
+    string addStrings(string a, string b) {
+        string result = "";
+        int carry = 0;
+        
+        reverse(a.begin(), a.end());
+        reverse(b.begin(), b.end());
+        
+        while (a.size() < b.size()) a.push_back('0');
+        while (b.size() < a.size()) b.push_back('0');
+        
+        for (int i = 0; i < a.size(); i++) {
+            int sum = (a[i]-'0') + (b[i]-'0') + carry;
+            result.push_back((sum % 10) + '0');
+            carry = sum / 10;
+        }
+        
+        if (carry) result.push_back(carry + '0');
+        
+        reverse(result.begin(), result.end());
+        return result;
+    }
+    
+    string subtractStrings(string a, string b) {
+        string result = "";
+        reverse(a.begin(), a.end());
+        reverse(b.begin(), b.end());
+        
+        int borrow = 0;
+        
+        while (b.size() < a.size()) b.push_back('0');
+        
+        for (int i = 0; i < a.size(); i++) {
+            int diff = (a[i]-'0') - (b[i]-'0') - borrow;
+            
+            if (diff < 0) {
+                diff += 10;
+                borrow = 1;
+            } else {
+                borrow = 0;
+            }
+            
+            result.push_back(diff + '0');
+        }
+        
+        while (result.size() > 1 && result.back() == '0')
+        result.pop_back();
+        
+        reverse(result.begin(), result.end());
+        return result;
+    }
+    
     // Addition assignment operator (x += y)
     BigInt& operator+=(const BigInt& other) {
-        *this = *this + other;
+        if (isNegative == other.isNegative) {
+            number = addStrings(number, other.number);
+        }
+        else {
+            if (number == other.number) {
+                number = "0";
+                isNegative = false;
+            }
+            else if (number.size() > other.number.size() ||
+                    (number.size() == other.number.size() && number > other.number)) {
+                number = subtractStrings(number, other.number);
+            }
+            else {
+                number = subtractStrings(other.number, number);
+                isNegative = other.isNegative;
+            }
+        }
+    
         return *this;
     }
-
-    // Subtraction assignment operator (x -= y)
+    // Substraction assignment operator(x -= y)
     BigInt& operator-=(const BigInt& other) {
-        *this = *this - other;
+        *this += (-other);
         return *this;
     }
-
-    // Multiplication assignment operator (x *= y)
+    // Multiplcation assignment operator(x *= y)
     BigInt& operator*=(const BigInt& other) {
-        *this = *this * other;
+        string result(number.size() + other.number.size(), '0');
+    
+        for (int i = number.size()-1; i >= 0; i--) {
+            for (int j = other.number.size()-1; j >= 0; j--) {
+                int mul = (number[i]-'0') * (other.number[j]-'0');
+                int sum = (result[i+j+1]-'0') + mul;
+    
+                result[i+j+1] = (sum % 10) + '0';
+                result[i+j] += sum / 10;
+            }
+        }
+    
+        while (result.size() > 1 && result[0] == '0')
+            result.erase(0,1);
+    
+        number = result;
+        isNegative = (isNegative != other.isNegative);
+    
+        if (number == "0")
+            isNegative = false;
+    
         return *this;
     }
-
     // Division assignment operator (x /= y)
     BigInt& operator/=(const BigInt& other) {
-        *this = *this / other;
+        if(other.number == "0")
+            throw runtime_error("Division By Zero");
+            
+            BigInt dividend = *this;
+            BigInt divisor = other;
+        
+            dividend.isNegative = false;
+            divisor.isNegative = false;
+        
+            // If dividend < divisor → result = 0
+            if (dividend < divisor) {
+                number = "0";
+                isNegative = false;
+                return *this;
+            }
+        
+            BigInt quotient("0");
+            BigInt one("1");
+        
+            while (dividend >= divisor) {
+                dividend -= divisor;
+                quotient += one;
+            }
+        
+            quotient.isNegative = (isNegative != other.isNegative);
+        
+            if (quotient.number == "0")
+                quotient.isNegative = false;
+        
+            *this = quotient;
+            return *this;
+            return *this;
+        }
+        
+    // Modulus assignment operator (x %= y)
+    BigInt& operator%=(const BigInt& other) {
+        if(other.number == "0")
+            throw runtime_error("Division By Zero");
+        
+    BigInt original = *this;
+    *this = *this - ((*this / other) * other);
+    isNegative = original.isNegative;
+
+    if (number == "0")
+        isNegative = false;
+
         return *this;
     }
 
-    // Modulus assignment operator (x %= y)
-    BigInt& operator%=(const BigInt& other) {
-        *this = *this % other;
-        return *this;
-    }
 
     // Pre-increment operator (++x)
     BigInt& operator++() {
@@ -225,38 +351,41 @@ BigInt operator%(BigInt lhs, const BigInt& rhs) {
 
 // Equality comparison operator (x == y)
 bool operator==(const BigInt& lhs, const BigInt& rhs) {
-    // TODO: Implement this operator
-    return false;
+    return (lhs.isNegative == rhs.isNegative) && (lhs.number == rhs.number);
 }
 
 // Inequality comparison operator (x != y)
 bool operator!=(const BigInt& lhs, const BigInt& rhs) {
-    // TODO: Implement this operator
-    return false;
+    return !(lhs == rhs);
 }
 
 // Less-than comparison operator (x < y)
 bool operator<(const BigInt& lhs, const BigInt& rhs) {
-    // TODO: Implement this operator
-    return false;
+    if (lhs.isNegative != rhs.isNegative)
+        return lhs.isNegative;
+
+    int cmp = lhs.compareMagnitude(rhs);
+
+    if (lhs.isNegative)
+        return cmp > 0;  // reverse for negatives
+    else
+        return cmp < 0;
 }
 
 // Less-than-or-equal comparison operator (x <= y)
 bool operator<=(const BigInt& lhs, const BigInt& rhs) {
-    // TODO: Implement this operator
-    return false;
+    return (lhs < rhs) || (lhs == rhs);
 }
+
 
 // Greater-than comparison operator (x > y)
 bool operator>(const BigInt& lhs, const BigInt& rhs) {
-    // TODO: Implement this operator
-    return false;
+    return !(lhs <= rhs);
 }
 
 // Greater-than-or-equal comparison operator (x >= y)
 bool operator>=(const BigInt& lhs, const BigInt& rhs) {
-    // TODO: Implement this operator
-    return false;
+    return !(lhs < rhs);
 }
 
 int main() {
