@@ -312,6 +312,10 @@ BigInt(const string& str) {
     // Friend declarations for comparison operators
     friend bool operator==(const BigInt& lhs, const BigInt& rhs);
     friend bool operator<(const BigInt& lhs, const BigInt& rhs);
+    friend bool operator>=(const BigInt& lhs,const BigInt& rhs);
+    friend BigInt operator-(const BigInt lhs,const BigInt& rhs);
+    friend BigInt operator*(const BigInt lhs,const BigInt& rhs);
+    friend BigInt operator/(const BigInt lhs,const BigInt& rhs);
 };
 
 // Binary addition operator (x + y)
